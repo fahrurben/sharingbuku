@@ -23,3 +23,8 @@ Route::group(['middleware' => 'api'], function ($router) {
     Route::post('/login', 'App\Http\Controllers\AuthenticationController@login');
 
 });
+
+Route::group(['middleware' => ['auth:api']], function ($router) {
+    Route::get('/user/profile', 'App\Http\Controllers\UserController@getProfile');
+    Route::post('/user/profile', 'App\Http\Controllers\UserController@updateProfile');
+});
