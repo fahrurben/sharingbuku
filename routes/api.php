@@ -21,6 +21,8 @@ Route::middleware('api')->post('/user', function (Request $request) {
 Route::group(['middleware' => 'api'], function ($router) {
     Route::post('/register', 'App\Http\Controllers\RegisterController@submit');
     Route::post('/login', 'App\Http\Controllers\AuthenticationController@login');
+    Route::get('/province', 'App\Http\Controllers\ProvinceController@index');
+    Route::get('/city', 'App\Http\Controllers\CityController@index');
 
 });
 
