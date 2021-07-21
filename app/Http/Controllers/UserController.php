@@ -9,6 +9,7 @@ use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Book;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -78,15 +79,23 @@ class UserController extends Controller
         return $user->listings()->orderBy('title')->get();
     }
 
-    public function addBook(AddBookRequest $request)
+    public function addBook(Request $request)
     {
         $user = Auth::user();
         $is_new = $request->get('is_new');
+        $image_filename = null;
+
+        if ($request->files->has('image')) {
+            $image = $request->file('image');
+            $image_path = $image->store('public/books');
+            $image_filename = str_replace('public/books/', '', $image_path);
+        }
 
         try {
             if ($is_new) {
                 $book = new Book();
                 $book->fill($request->all());
+                $book->image = $image_filename ?: null;
                 $book->slug = Str::slug($request->get('book'));
                 $book->created_at = new \DateTime();
                 $book->created_by = $user->id;

@@ -22,6 +22,7 @@ Route::group(['middleware' => 'api'], function ($router) {
     Route::post('/register', 'App\Http\Controllers\RegisterController@submit');
     Route::post('/login', 'App\Http\Controllers\AuthenticationController@login');
     Route::get('/province', 'App\Http\Controllers\ProvinceController@index');
+    Route::get('/city/{province_id}', 'App\Http\Controllers\CityController@getByProvince');
     Route::get('/city', 'App\Http\Controllers\CityController@index');
 
 });
@@ -32,5 +33,6 @@ Route::group(['middleware' => ['auth:api']], function ($router) {
     Route::post('/user/password', 'App\Http\Controllers\UserController@updatePassword');
     Route::get('/user/book', 'App\Http\Controllers\UserController@getBooks');
     Route::post('/user/book', 'App\Http\Controllers\UserController@addBook');
-
+    Route::get('/category', 'App\Http\Controllers\CategoryController@index');
+    Route::get('/book/lookup', 'App\Http\Controllers\BookController@lookup');
 });

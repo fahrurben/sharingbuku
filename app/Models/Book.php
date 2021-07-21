@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $author
  * @property int $category_id
  * @property string|null $isbn
- * @property int|null $thumbnail
+ * @property int|null $image
  * @property \Illuminate\Support\Carbon $created_at
  * @property int $created_by
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Book whereIsbn($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Book whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Book whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Book whereThumbnail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Book whereImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Book whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Book whereUpdatedBy($value)
  * @mixin \Eloquent
@@ -60,7 +60,7 @@ class Book extends Model
         'author',
         'category_id',
         'isbn',
-        'thumbnail',
+        'image',
     ];
 
     public function category()

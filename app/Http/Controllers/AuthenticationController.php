@@ -13,7 +13,7 @@ class AuthenticationController extends Controller
     {
         $credentials = $request->all();
         if (!$token = auth('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Wrong username or password'], 401);
+            return response()->json(['message' => 'Wrong username or password!'], 401);
         }
 
         $user = User::where(['email' => $credentials['email']])->firstOrFail();
