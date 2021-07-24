@@ -4,7 +4,7 @@
 namespace App\Http\Controllers;
 
 
-use App\Http\Resources\BookCollection;
+use App\Http\Resources\BookResource;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +15,6 @@ class BookController
     {
         $title = $request->get('title');
         $bookList = DB::table('book')->where('title', 'like','%' . $title . '%')->get();
-        return new BookCollection($bookList);
+        return BookResource::collection($bookList);
     }
 }
