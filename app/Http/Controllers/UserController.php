@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AddBookRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Resources\BookResource;
 use App\Models\Book;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -75,8 +76,8 @@ class UserController extends Controller
     public function getBooks()
     {
         $user = Auth::user();
-
-        return $user->listings()->orderBy('title')->get();
+        $books = $user->listings()->orderBy('title')->paginate(20);
+        return BookResource::collection($books);
     }
 
     public function addBook(Request $request)

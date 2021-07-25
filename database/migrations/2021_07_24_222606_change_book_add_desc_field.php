@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class BookTableAddImageField extends Migration
+class ChangeBookAddDescField extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,9 @@ class BookTableAddImageField extends Migration
     public function up()
     {
         Schema::table('book', function (Blueprint $table) {
-            $table->dropColumn('thumbnail');
-            $table->string('image', 1000)->nullable();
+            $table->after('title', function ($table) {
+                $table->text('desc')->nullable();
+            });
         });
     }
 
@@ -27,8 +28,7 @@ class BookTableAddImageField extends Migration
     public function down()
     {
         Schema::table('book', function (Blueprint $table) {
-            $table->dropColumn('image');
-            $table->bigInteger('thumbnail')->nullable();
+            $table->dropColumn('desc');
         });
     }
 }
