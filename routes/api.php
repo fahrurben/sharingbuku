@@ -35,4 +35,5 @@ Route::group(['middleware' => ['auth:api']], function ($router) {
     Route::post('/user/book', 'App\Http\Controllers\UserController@addBook');
     Route::get('/category', 'App\Http\Controllers\CategoryController@index');
     Route::get('/book/lookup', 'App\Http\Controllers\BookController@lookup');
+    Route::get('/book/search', 'App\Http\Controllers\BookController@search');
 });
