@@ -18,10 +18,14 @@ class BookResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'slug' => $this->slug,
+            'desc' => $this->desc,
             'author' => $this->author,
             'category_id' => $this->category_id,
+            'category' => new CategoryResource($this->category),
             'isbn' => $this->isbn,
             'image' => $this->image,
+            'is_available' => $this->is_available,
+            'is_logged_in_user_owned' => $this->is_logged_in_user_owned,
         ];
     }
 }

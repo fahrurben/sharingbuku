@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * App\Models\Book
@@ -65,7 +66,7 @@ class Book extends Model
 
     public function category()
     {
-        return $this->hasOne(Category::class, 'category_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function owners()
@@ -81,5 +82,21 @@ class Book extends Model
     public function availableListings()
     {
         return $this->hasMany(Listing::class, 'book_id')->where('status', '=', Listing::STATUS_AVAILABLE);
+    }
+
+    /**
+     * Get the book availability
+     *
+     * @return boolean
+     */
+    public function getIsAvailableAttribute()
+    {
+        return count($this->availableListings) > 0;
+    }
+
+    public function getIsLoggedInUserOwnedAttribute()
+    {
+        $user_id = (Auth::user())->id;
+        return Listing::where('user_id', $user_id)->where('book_id', $this->id)->count() > 0;
     }
 }

@@ -33,4 +33,15 @@ class BookController
 
         return BookResource::collection($bookList);
     }
+
+    public function details(Request $request, int $id)
+    {
+        $book = Book::find($id);
+
+        if (!$book) {
+            throw new \Exception('Book not found');
+        }
+
+        return new BookResource($book);
+    }
 }
