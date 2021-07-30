@@ -72,4 +72,14 @@ class Book extends Model
     {
         return $this->belongsToMany(User::class, 'book_listing', 'book_id', 'user_id');
     }
+
+    public function listings()
+    {
+        return $this->hasMany(Listing::class, 'book_id');
+    }
+
+    public function availableListings()
+    {
+        return $this->hasMany(Listing::class, 'book_id')->where('status', '=', Listing::STATUS_AVAILABLE);
+    }
 }
