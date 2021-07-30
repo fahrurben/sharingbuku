@@ -37,4 +37,5 @@ Route::group(['middleware' => ['auth:api']], function ($router) {
     Route::get('/book/lookup', 'App\Http\Controllers\BookController@lookup');
     Route::get('/book/search', 'App\Http\Controllers\BookController@search');
     Route::post('/transaction/request', 'App\Http\Controllers\TransactionController@request');
+    Route::post('/transaction/cancel', 'App\Http\Controllers\TransactionController@cancel');
 });

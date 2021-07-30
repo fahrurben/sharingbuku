@@ -53,4 +53,36 @@ class TransactionController extends Controller
             return response()->json(['error' => $e->getMessage()],500);
         }
     }
+
+    public function cancel(Request $request)
+    {
+        $user = Auth::user();
+        $transaction_id = $request->get('transaction_id');
+
+        try {
+            DB::beginTransaction();
+
+            $transaction = Transaction::find($transaction_id);
+
+            if ($transaction->requestor_id !== $user->id) {
+                throw new \Exception('Action not permitted');
+            }
+            $transaction->status = Transaction::STATUS_CANCELLED;
+            $transaction->resolution = Transaction::RESOLUTION_CANCELLED;
+            $transaction->save();
+
+            $listing = $transaction->listing;
+            $listing->status = Listing::STATUS_AVAILABLE;
+            $listing->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()],500);
+        }
+    }
 }
