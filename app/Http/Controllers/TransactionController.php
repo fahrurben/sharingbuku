@@ -4,10 +4,12 @@
 namespace App\Http\Controllers;
 
 
+use App\Constant;
 use App\Http\Resources\TransactionResource;
 use App\Models\Book;
 use App\Models\Listing;
 use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +31,10 @@ class TransactionController extends Controller
                 throw new \Exception('No book listing available');
             }
 
+            if ($user->balance < Constant::BOOK_POINT_DEFAULT) {
+                throw new \Exception('Your balance is not enough to borrow this book');
+            }
+
             $listing = $listings->first();
 
             $transaction = new Transaction();
@@ -37,10 +43,15 @@ class TransactionController extends Controller
             $transaction->status = Transaction::STATUS_REQUEST;
             $transaction->resolution = Transaction::RESOLUTION_NONE;
             $transaction->requested_at = new \DateTime();
+            $transaction->point = Constant::BOOK_POINT_DEFAULT;
             $transaction->save();
 
             $listing->status = Listing::STATUS_UNAVAILABLE;
             $listing->save();
+
+            $requestor = $transaction->requestor;
+            $requestor->balance -= $transaction->point;
+            $requestor->save();
 
             DB::commit();
 
@@ -69,11 +80,16 @@ class TransactionController extends Controller
             }
             $transaction->status = Transaction::STATUS_CANCELLED;
             $transaction->resolution = Transaction::RESOLUTION_CANCELLED;
+            $transaction->point = 0;
             $transaction->save();
 
             $listing = $transaction->listing;
             $listing->status = Listing::STATUS_AVAILABLE;
             $listing->save();
+
+            $requestor = $transaction->requestor;
+            $requestor->balance += $transaction->point;
+            $requestor->save();
 
             DB::commit();
 
