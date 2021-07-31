@@ -170,4 +170,98 @@ class TransactionController extends Controller
             return response()->json(['error' => $e->getMessage()],500);
         }
     }
+
+    public function send(Request $request)
+    {
+        $user = Auth::user();
+        $transaction_id = $request->get('transaction_id');
+        $receipt = $request->get('receipt');
+
+        try {
+            DB::beginTransaction();
+
+            $transaction = Transaction::find($transaction_id);
+
+            if ($transaction->listing->user_id !== $user->id) {
+                throw new \Exception('Action not permitted');
+            }
+
+            $transaction->send_receipt = $receipt;
+            $transaction->status = Transaction::STATUS_SENDING;
+            $transaction->resolution = Transaction::RESOLUTION_UN_FINISHED;
+            $transaction->sent_at = new \DateTime();
+            $transaction->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()],500);
+        }
+    }
+
+    public function sendBack(Request $request)
+    {
+        $user = Auth::user();
+        $transaction_id = $request->get('transaction_id');
+        $receipt = $request->get('receipt');
+
+        try {
+            DB::beginTransaction();
+
+            $transaction = Transaction::find($transaction_id);
+
+            if ($transaction->requestor->id !== $user->id) {
+                throw new \Exception('Action not permitted');
+            }
+
+            $transaction->send_back_receipt = $receipt;
+            $transaction->status = Transaction::STATUS_SENDING_BACK;
+            $transaction->resolution = Transaction::RESOLUTION_UN_FINISHED;
+            $transaction->sent_back_at = new \DateTime();
+            $transaction->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()],500);
+        }
+    }
+
+    public function receive(Request $request)
+    {
+        $user = Auth::user();
+        $transaction_id = $request->get('transaction_id');
+
+        try {
+            DB::beginTransaction();
+
+            $transaction = Transaction::find($transaction_id);
+
+            if ($transaction->requestor->id !== $user->id) {
+                throw new \Exception('Action not permitted');
+            }
+
+            $transaction->status = Transaction::STATUS_RECEIVED;
+            $transaction->resolution = Transaction::RESOLUTION_UN_FINISHED;
+            $transaction->received_at = new \DateTime();
+            $transaction->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()],500);
+        }
+    }
 }
