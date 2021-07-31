@@ -39,4 +39,6 @@ Route::group(['middleware' => ['auth:api']], function ($router) {
     Route::get('/book/details/{id}', 'App\Http\Controllers\BookController@details');
     Route::post('/transaction/request', 'App\Http\Controllers\TransactionController@request');
     Route::post('/transaction/cancel', 'App\Http\Controllers\TransactionController@cancel');
+    Route::post('/transaction/approve', 'App\Http\Controllers\TransactionController@approve');
+    Route::post('/transaction/reject', 'App\Http\Controllers\TransactionController@reject');
 });

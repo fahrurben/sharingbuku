@@ -101,4 +101,73 @@ class TransactionController extends Controller
             return response()->json(['error' => $e->getMessage()],500);
         }
     }
+
+    public function approve(Request $request)
+    {
+        $user = Auth::user();
+        $transaction_id = $request->get('transaction_id');
+
+        try {
+            DB::beginTransaction();
+
+            $transaction = Transaction::find($transaction_id);
+
+            if ($transaction->listing->user_id !== $user->id) {
+                throw new \Exception('Action not permitted');
+            }
+
+            $transaction->status = Transaction::STATUS_APPROVED;
+            $transaction->resolution = Transaction::RESOLUTION_UN_FINISHED;
+            $transaction->approved_at = new \DateTime();
+            $transaction->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()],500);
+        }
+    }
+
+    public function reject(Request $request)
+    {
+        $user = Auth::user();
+        $transaction_id = $request->get('transaction_id');
+
+        try {
+            DB::beginTransaction();
+
+            $transaction = Transaction::find($transaction_id);
+
+            if ($transaction->listing->user_id !== $user->id) {
+                throw new \Exception('Action not permitted');
+            }
+
+            $transaction_point = $transaction->point;
+            $transaction->status = Transaction::STATUS_REJECTED;
+            $transaction->resolution = Transaction::RESOLUTION_REJECTED;
+            $transaction->approved_at = new \DateTime();
+            $transaction->save();
+
+            $listing = $transaction->listing;
+            $listing->status = Listing::STATUS_AVAILABLE;
+            $listing->save();
+
+            $requestor = $transaction->requestor;
+            $requestor->balance += $transaction_point;
+            $requestor->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()],500);
+        }
+    }
 }
