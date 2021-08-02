@@ -36,6 +36,16 @@ class Listing extends Pivot
         'updated_at',
     ];
 
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     public function book() {
         return $this->belongsTo(Book::class);
     }

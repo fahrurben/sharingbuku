@@ -4,12 +4,16 @@
 namespace App\Http\Controllers;
 
 
+use App\Constant;
 use App\Http\Requests\AddBookRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\BookResource;
+use App\Http\Resources\TransactionResource;
 use App\Models\Book;
+use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -22,7 +26,7 @@ class UserController extends Controller
         $id = Auth::id();
         $user = User::find($id);
         if ($user === null) {
-            return response()->json(['error' => 'User not found'],500);
+            return response()->json(['error' => 'User not found'], 500);
         }
 
         return $user;
@@ -33,7 +37,7 @@ class UserController extends Controller
         $id = Auth::id();
         $user = User::find($id);
         if ($user === null) {
-            return response()->json(['error' => 'User not found'],500);
+            return response()->json(['error' => 'User not found'], 500);
         }
 
         try {
@@ -42,7 +46,7 @@ class UserController extends Controller
 
             return response()->json(['status' => 'success']);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()],500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -51,7 +55,7 @@ class UserController extends Controller
         $id = Auth::id();
         $user = User::find($id);
         if ($user === null) {
-            return response()->json(['error' => 'User not found'],500);
+            return response()->json(['error' => 'User not found'], 500);
         }
 
         $credentials = [
@@ -60,7 +64,7 @@ class UserController extends Controller
         ];
 
         if (!auth('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Old password is wrong'],500);
+            return response()->json(['error' => 'Old password is wrong'], 500);
         }
 
         try {
@@ -69,7 +73,7 @@ class UserController extends Controller
 
             return response()->json(['status' => 'success']);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()],500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -105,7 +109,7 @@ class UserController extends Controller
                 $book = Book::find($request->get('book_id'));
 
                 if (!$book) {
-                    return response()->json(['error' => 'Book is not found'],401);
+                    return response()->json(['error' => 'Book is not found'], 401);
                 }
             }
 
@@ -113,7 +117,33 @@ class UserController extends Controller
 
             return response()->json(['status' => 'success']);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()],500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function myRequest()
+    {
+        $user = Auth::user();
+        $user_id = $user->id;
+        $requestList = Transaction::where('requestor_id', $user_id)
+            ->whereNotIn('resolution', [Transaction::RESOLUTION_FINISHED, Transaction::RESOLUTION_REJECTED, Transaction::RESOLUTION_CANCELLED])
+            ->orderBy('created_at', Constant::DESC)
+            ->paginate(Constant::PAGE_SIZE);
+
+        return TransactionResource::collection($requestList);
+    }
+
+    public function incomingRequest()
+    {
+        $user = Auth::user();
+        $user_id = $user->id;
+        $requestList = Transaction::whereHas('listing', function (Builder $query) use ($user_id) {
+            $query->where('user_id', $user_id);
+        })
+            ->whereNotIn('resolution', [Transaction::RESOLUTION_FINISHED, Transaction::RESOLUTION_REJECTED, Transaction::RESOLUTION_CANCELLED])
+            ->orderBy('created_at', Constant::DESC)
+            ->paginate(Constant::PAGE_SIZE);
+
+        return TransactionResource::collection($requestList);
     }
 }
