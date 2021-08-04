@@ -23,7 +23,7 @@ class BookController
     {
         $title = $request->get('title');
         $category_id = $request->get('category_id');
-        $bookQuery = DB::table('book')->where('title', 'like','%' . $title . '%');
+        $bookQuery = Book::where('title', 'like','%' . $title . '%');
 
         if (!empty($category_id)) {
             $bookQuery->where('category_id', $category_id);
