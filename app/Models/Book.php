@@ -91,7 +91,12 @@ class Book extends Model
      */
     public function getIsAvailableAttribute()
     {
-        return count($this->availableListings) > 0;
+        $user_id = (Auth::user())->id;
+        $owned = $this->owners->contains(function ($user) use ($user_id) {
+            return $user->id === $user_id;
+        });
+
+        return (count($this->availableListings) && !$owned);
     }
 
     public function getIsLoggedInUserOwnedAttribute()

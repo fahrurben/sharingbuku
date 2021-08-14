@@ -74,6 +74,7 @@ class TransactionController extends Controller
             DB::beginTransaction();
 
             $transaction = Transaction::find($transaction_id);
+            $transaction_point = $transaction->point;
 
             if ($transaction->requestor_id !== $user->id) {
                 throw new \Exception('Action not permitted');
@@ -88,7 +89,7 @@ class TransactionController extends Controller
             $listing->save();
 
             $requestor = $transaction->requestor;
-            $requestor->balance += $transaction->point;
+            $requestor->balance += $transaction_point;
             $requestor->save();
 
             DB::commit();
