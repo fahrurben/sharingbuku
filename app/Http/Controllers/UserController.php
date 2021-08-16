@@ -92,8 +92,8 @@ class UserController extends Controller
 
         if ($request->files->has('image')) {
             $image = $request->file('image');
-            $image_path = $image->store('public/books');
-            $image_filename = str_replace('public/books/', '', $image_path);
+            $image_path = $image->store('books');
+            $image_filename = str_replace('books/', '', $image_path);
         }
 
         try {
